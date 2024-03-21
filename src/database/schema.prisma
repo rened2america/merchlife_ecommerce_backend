@@ -1,0 +1,195 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model Artist {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(500) @default("")
+  email String @db.VarChar(300) @unique
+  password String @db.VarChar(300)
+  nationality String @db.VarChar(100) @default("")
+  emailConfirmation Boolean @default(false)
+  verifyArtist Boolean @default(false)
+  banner String @default("")
+  avatar String @default("")
+  facebook  String @default("")
+  instagram String @default("")
+  twitter   String @default("")
+  website   String @default("")
+  bio String @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  session Session?
+  design Design[]
+  product Product[]
+  order Order[]
+  group Group[]
+} 
+
+model Order {
+  id Int @id @default(autoincrement())
+  city String @default("")
+  country String @default("")
+  line1 String @default("")
+  line2 String @default("")
+  postalCode String @default("")
+  state String @default("")
+  email String @default("")
+  name String @default("")
+  phone String @default("")
+  amount String @default("")
+  quantity Int @default(1)
+  priceId String @default("")
+  productName String @default("")
+  artist Artist @relation(fields:[artistId], references: [id] )
+  artistId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Session {
+  id Int @id @default(autoincrement())
+  accessCode String @db.VarChar(50) @unique
+  refreshCode String @db.VarChar(50) @unique
+  accessToken String @db.VarChar(300) @unique
+  refreshToken String @db.VarChar(300) @unique
+  artist Artist @relation(fields:[artistId], references: [id] )
+  artistId Int @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([artistId])
+}
+// --------- Product START
+model Product {
+  id Int @id @default(autoincrement())
+  price Decimal @db.Decimal(8,2)
+  title String
+  subtitle  String
+  idGeneral String
+  description String
+  tag Tag[]
+  design Design[]
+  sizes Size[]
+  colors Color[]
+  types Type[]
+  artist Artist @relation(fields:[artistId], references: [id] )
+  artistId Int
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([groupId])
+  @@index([artistId])
+}
+
+model Tag {
+  id Int @id @default(autoincrement())
+  value String @db.VarChar(10) @unique
+  products Product[]
+}
+
+model Size {
+  id Int @id @default(autoincrement())
+  value String @db.VarChar(10) @unique
+  products Product[]
+}
+
+model Color {
+  id Int @id @default(autoincrement())
+  value String @db.VarChar(100) @unique
+  products Product[]
+}
+model Type {
+  id Int @id @default(autoincrement())
+  value String @db.VarChar(100) @unique
+  products Product[]
+}
+
+// --------- Product END
+
+model Design {
+  id Int @id @default(autoincrement())
+  positionX Decimal @default(0) @db.Decimal(8,2)
+  positionY Decimal @default(0) @db.Decimal(8,2)
+  angle Decimal @default(0) @db.Decimal(8,2)
+  scale Decimal @default(0) @db.Decimal(8,2)
+  width Int @default(0)
+  height Int @default(0)
+  variant String @default("")
+  size String
+  price Decimal @db.Decimal(8,2)
+  priceId String @default("")
+  url String
+  urlLogo String 
+  artist Artist @relation(fields:[artistId], references: [id] )
+  artistId Int
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
+  @@index([productId])
+
+}
+
+model Group {
+  id Int @id @default(autoincrement())
+  product Product[]
+  urlImage String
+  name String
+  artist Artist @relation(fields:[artistId], references: [id] )
+  artistId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([artistId])
+}
+
+// type ArtistsAlbums {
+//   id          String @map("_id") @db.ObjectId
+//   releaseYear Int
+//   title       String
+// }
+
+// type ArtistsSocialMedia {
+//   facebook  String
+//   instagram String
+//   twitter   String
+//   website   String
+// }
+
+// model artists {
+//   id          String              @id @default(autoincrement()) @map("_id") @db.ObjectId
+//   v           Int                 @map("__v")
+//   albums      ArtistsAlbums[]
+//   bio         String
+//   birthDate   DateTime            @db.Date
+//   createdAt   DateTime            @db.Date
+//   genres      String[]
+//   name        String
+//   nationality String?
+//   socialMedia ArtistsSocialMedia?
+//   updatedAt   DateTime            @db.Date
+// }
+
+// model products {
+//   id         String   @id @default(auto()) @map("_id") @db.ObjectId
+//   v          Int      @map("__v")
+//   artist     String?  @db.ObjectId
+//   createdAt  DateTime @db.Date
+//   gender     String?
+//   labels     String[]
+//   listImgUrl String[]
+//   name       String
+//   price      Int
+//   quantity   Int
+//   size       String[]
+//   subtitle   String
+//   title      String
+//   type       String 
+//   unit       String
+//   updatedAt  DateTime @db.Date
+// }
