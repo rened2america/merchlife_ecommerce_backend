@@ -11,7 +11,7 @@ app.use(
     credentials: true,
     origin: [
       "*",
-      // "http://localhost:3000",
+      "http://localhost:3001",
       // "http://localhost:5173",
       // "https://politicozen-dashboard-frontend-p5fagpv5f-rened2america.vercel.app",
       // "https://frontend-politicozen-renemeza.vercel.app",
@@ -31,6 +31,10 @@ app.use(
       // "https://app.politicozen.com",
       // "http://app.politicozen.com",
     ],
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false,
+    allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Origin', 'Access-Control-Allow-Methods'],
+    optionsSuccessStatus: 200
   })
 );
 // app.use(express.json());
