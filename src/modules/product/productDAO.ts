@@ -64,7 +64,7 @@ class ProductDAO {
     console.log(count);
     //TODO Hacer un filtro para allProducts descrtando los canvas, mug, etc.
     const filteredProducts = allProducts.filter( prod => {
-      return prod.types[0].value !== 'Canvas' && prod.types[0].value !== 'Mugs' && prod.types[0].value !== 'Posters'
+      return prod.types[0].value !== 'Canvas' && prod.types[0].value !== 'Mugs' && prod.types[0].value !== 'Poster'
     })
     return { products: filteredProducts, count: count };
   };
