@@ -62,6 +62,7 @@ class ProductDAO {
       }),
     ]);
     console.log(count);
+    //TODO Hacer un filtro para allProducts descrtando los canvas, mug, etc.
     return { products: allProducts, count: count };
   };
 
