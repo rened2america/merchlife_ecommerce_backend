@@ -63,7 +63,10 @@ class ProductDAO {
     ]);
     console.log(count);
     //TODO Hacer un filtro para allProducts descrtando los canvas, mug, etc.
-    return { products: allProducts, count: count };
+    const filteredProducts = allProducts.filter( prod => {
+      return prod.types[0].value != 'Canvas'
+    })
+    return { products: filteredProducts, count: count };
   };
 
   getById = async (
