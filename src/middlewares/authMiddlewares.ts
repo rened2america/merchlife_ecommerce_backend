@@ -15,8 +15,7 @@ export const authValidate: any = async (
     const refreshToken = req.cookies.refreshToken;
 
     if (!accessToken || !refreshToken) {
-      res.status(401).json({ message: "User not logged in" });
-      return;
+      return res.status(401).json({ message: "User not logged in" });
     }
     // //"emDgcBoq4Vv_w2ecS-Egz"
     // jwt.verify(refreshToken, "emDgcBoq4Vv_w2ecS-Egz");
@@ -33,8 +32,7 @@ export const authValidate: any = async (
       !refreshTokenDecode ||
       typeof refreshTokenDecode === "string"
     ) {
-      res.status(401).json({ message: "User not logged in" });
-      return;
+      return res.status(401).json({ message: "User not logged in" });
     }
     console.log("after String");
 
@@ -52,11 +50,11 @@ export const authValidate: any = async (
         },
       });
       if (!artist?.emailConfirmation) {
-        res.status(403).json({ message: "confirm email" });
+        return res.status(403).json({ message: "confirm email" });
       }
 
       if (!artist?.verifyArtist) {
-        res.status(403).json({ message: "verify artist" });
+        return res.status(403).json({ message: "verify artist" });
       }
       if (sessionIsValid.artistId) {
         req.user = {

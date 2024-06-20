@@ -12,6 +12,7 @@ import { round } from "mathjs";
 import { generateCode } from "../../utils/generateCode";
 import artistDAO from "../artist/artistDAO";
 const create = async (req: Request, res: Response) => {
+  console.log("req body: ",req.body)
   const { x, y, angle, scale, tags, type, groupId } = req.body;
   console.log("Distance x", x);
   console.log("Distance y", y);
@@ -23,6 +24,7 @@ const create = async (req: Request, res: Response) => {
   console.log("Distance rounded x", xDecimal);
   console.log("Distance rounded y", yDecimal);
   const productName = req.body.name;
+  const productPrice = req.body.price;
   const productSubtitle = req.body.subtitle;
   const productDescription = req.body.description;
 
@@ -222,6 +224,7 @@ const create = async (req: Request, res: Response) => {
   console.log("priceOfProduct(type)", priceOfProduct(type));
   console.log("productName", productName);
   console.log("productSubtitle", productSubtitle);
+  console.log("productPrice", productPrice);
   console.log("productDescription", productDescription);
   console.log("artistId", artistId);
   console.log("generateCode()", generateCode());
@@ -231,7 +234,7 @@ const create = async (req: Request, res: Response) => {
   console.log("colorsofProdut", colorsofProdut(type, req.body.colorsSelected));
 
   const newProduct = await productService.create({
-    price: priceOfProduct(type),
+    price: productPrice,
     title: productName,
     subtitle: productSubtitle,
     description: productDescription,
@@ -268,7 +271,7 @@ const create = async (req: Request, res: Response) => {
       angle: angleDecimal,
       scale: scaleDecimal,
       variant: product.color,
-      price: priceOfProduct(type),
+      price: productPrice,
       priceId: product.id,
       url: product.imgProductURL,
       urlLogo: logoURL,
