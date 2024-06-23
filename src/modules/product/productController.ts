@@ -753,8 +753,12 @@ const createGroup = async (req: Request, res: Response) => {
   //@ts-ignore
   const bufferArt = req.file.buffer;
   const name = req.body.name;
+  const posterName = `${name} Poster`
+  const canvasName = `${name} Canvas`
   const imageCrop = req.body.imageCrop;
   console.log("oki2", req.body.imageCrop);
+  const shouldCreateCanvas = req.body.shouldCreateCanvas;
+  const shouldCreatePoster = req.body.shouldCreatePoster;
   const base64Image = imageCrop.split(";base64,").pop();
   const imgCropBuffer = Buffer.from(base64Image, "base64");
   const getArtist = await artistDAO.getArtistById(artistId);
@@ -788,179 +792,188 @@ const createGroup = async (req: Request, res: Response) => {
       name,
     },
   });
+  if (shouldCreateCanvas === "true") {
+    // Create Price of stripe
 
-  // Create Price of stripe
-  const newOfProductPosterSmall = await stripe.products.create({
-    name: `${name}-Poster-17x25.5-product`,
-    images: [imgCropURL.Location],
-  });
-  const newOfProductPosterLarge = await stripe.products.create({
-    name: `${name}-Poster-24x36-product`,
-    images: [imgCropURL.Location],
-  });
-  const newOfProductCanvas = await stripe.products.create({
-    name: `${name}-Canvas-11x14-product`,
-    images: [imgCropURL.Location],
-  });
-  const newOfProductCanvas2 = await stripe.products.create({
-    name: `${name}-Canvas-20x30-product`,
-    images: [imgCropURL.Location],
-  });
+    const newOfProductCanvas = await stripe.products.create({
+      name: `${name}-Canvas-11x14-product`,
+      images: [imgCropURL.Location],
+    });
+    const newOfProductCanvas2 = await stripe.products.create({
+      name: `${name}-Canvas-20x30-product`,
+      images: [imgCropURL.Location],
+    });
 
-  const priceProductPosterSmall = await stripe.prices.create({
-    product: newOfProductPosterSmall.id,
-    currency: "usd",
-    unit_amount: 25.99 * 100,
-  });
-  const priceProductPosterLarge = await stripe.prices.create({
-    product: newOfProductPosterLarge.id,
-    currency: "usd",
-    unit_amount: 39.99 * 100,
-  });
-  const priceProductCanvas = await stripe.prices.create({
-    product: newOfProductCanvas.id,
-    currency: "usd",
-    unit_amount: 49.95 * 100,
-  });
+    const priceProductCanvas = await stripe.prices.create({
+      product: newOfProductCanvas.id,
+      currency: "usd",
+      unit_amount: 49.95 * 100,
+    });
+    const priceProduct = await stripe.prices.create({
+      product: newOfProductCanvas2.id,
+      currency: "usd",
+      unit_amount: 99.99 * 100,
+    });
 
-  const priceProduct = await stripe.prices.create({
-    product: newOfProductCanvas2.id,
-    currency: "usd",
-    unit_amount: 99.99 * 100,
-  });
-
-  const newProductPoster = await productService.create({
-    price: 25.99,
-    title: name,
-    subtitle: "",
-    description: "",
-    artistId: artistId,
-    idGeneral: generateCode(),
-    groupId: newGroup.id,
-    // tag: {
-    //   connectOrCreate: tagOperations,
-    // },
-    types: {
-      connectOrCreate: {
-        where: { value: "Poster" },
-        create: { value: "Poster" },
-      },
-    },
-    sizes: {
-      connectOrCreate: [
-        {
-          where: { value: `17"x25.5"` },
-          create: { value: `17"x25.5"` },
-        },
-        {
-          where: { value: `24"x36"` },
-          create: { value: `24"x36"` },
-        },
-      ],
-    },
-  });
-  const newProductCanvas = await productService.create({
-    price: 49.95,
-    title: name,
-    subtitle: "",
-    description: "",
-    artistId: artistId,
-    idGeneral: generateCode(),
-    groupId: newGroup.id,
-    // tag: {
-    //   connectOrCreate: tagOperations,
-    // },
-    types: {
-      connectOrCreate: {
-        where: { value: "Canvas" },
-        create: { value: "Canvas" },
-      },
-    },
-    sizes: {
-      connectOrCreate: [
-        {
-          where: { value: `11"x14"` },
-          create: { value: `11"x14"` },
-        },
-        {
-          where: { value: `20"x30"` },
-          create: { value: `20"x30"` },
-        },
-      ],
-    },
-  });
-
-  const createDesignPosterSmall = await prisma.design.create({
-    //@ts-ignore
-    data: {
-      //@ts-ignore
-      productId: newProductPoster.id,
-      positionX: 0,
-      positionY: 0,
-      angle: 0,
-      scale: 0,
-      price: 25.99,
-      priceId: priceProductPosterSmall.id,
-      url: imgCropURL.Location,
-      urlLogo: imgArtURL.Location,
-      artistId: artistId,
-      size: `17"x25.5"`,
-    },
-  });
-
-  const createDesignPosterLarge = await prisma.design.create({
-    //@ts-ignore
-    data: {
-      //@ts-ignore
-      productId: newProductPoster.id,
-      positionX: 0,
-      positionY: 0,
-      angle: 0,
-      scale: 0,
-      price: 39.99,
-      priceId: priceProductPosterLarge.id,
-      url: imgCropURL.Location,
-      urlLogo: imgArtURL.Location,
-      artistId: artistId,
-      size: `24"x36"`,
-    },
-  });
-
-  const createDesignCanvas1 = await prisma.design.create({
-    //@ts-ignore
-    data: {
-      //@ts-ignore
-      productId: newProductCanvas.id,
-      positionX: 0,
-      positionY: 0,
-      angle: 0,
-      scale: 0,
+    const newProductCanvas = await productService.create({
       price: 49.95,
-      priceId: priceProductCanvas.id,
-      url: imgCropURL.Location,
-      urlLogo: imgArtURL.Location,
+      title: canvasName,
+      subtitle: "",
+      description: "",
       artistId: artistId,
-      size: `11"x14"`,
-    },
-  });
+      idGeneral: generateCode(),
+      groupId: newGroup.id,
+      // tag: {
+      //   connectOrCreate: tagOperations,
+      // },
+      types: {
+        connectOrCreate: {
+          where: { value: "Canvas" },
+          create: { value: "Canvas" },
+        },
+      },
+      sizes: {
+        connectOrCreate: [
+          {
+            where: { value: `11"x14"` },
+            create: { value: `11"x14"` },
+          },
+          {
+            where: { value: `20"x30"` },
+            create: { value: `20"x30"` },
+          },
+        ],
+      },
+    });
 
-  const createDesignCanvas2 = await prisma.design.create({
-    //@ts-ignore
-    data: {
+    const createDesignCanvas1 = await prisma.design.create({
       //@ts-ignore
-      productId: newProductCanvas.id,
-      positionX: 0,
-      positionY: 0,
-      angle: 0,
-      scale: 0,
-      price: 99.99,
-      priceId: priceProduct.id,
-      url: imgCropURL.Location,
-      urlLogo: imgArtURL.Location,
+      data: {
+        //@ts-ignore
+        productId: newProductCanvas.id,
+        positionX: 0,
+        positionY: 0,
+        angle: 0,
+        scale: 0,
+        price: 49.95,
+        priceId: priceProductCanvas.id,
+        url: imgCropURL.Location,
+        urlLogo: imgArtURL.Location,
+        artistId: artistId,
+        size: `11"x14"`,
+      },
+    });
+
+    const createDesignCanvas2 = await prisma.design.create({
+      //@ts-ignore
+      data: {
+        //@ts-ignore
+        productId: newProductCanvas.id,
+        positionX: 0,
+        positionY: 0,
+        angle: 0,
+        scale: 0,
+        price: 99.99,
+        priceId: priceProduct.id,
+        url: imgCropURL.Location,
+        urlLogo: imgArtURL.Location,
+        artistId: artistId,
+        size: `20"x30"`,
+      },
+    });
+
+  }
+  if (shouldCreatePoster === "true") {
+    // Create Price of stripe
+    const newOfProductPosterSmall = await stripe.products.create({
+      name: `${name}-Poster-17x25.5-product`,
+      images: [imgCropURL.Location],
+    });
+    const newOfProductPosterLarge = await stripe.products.create({
+      name: `${name}-Poster-24x36-product`,
+      images: [imgCropURL.Location],
+    });
+
+    const priceProductPosterSmall = await stripe.prices.create({
+      product: newOfProductPosterSmall.id,
+      currency: "usd",
+      unit_amount: 25.99 * 100,
+    });
+    const priceProductPosterLarge = await stripe.prices.create({
+      product: newOfProductPosterLarge.id,
+      currency: "usd",
+      unit_amount: 39.99 * 100,
+    });
+
+    const newProductPoster = await productService.create({
+      price: 25.99,
+      title: posterName,
+      subtitle: "",
+      description: "",
       artistId: artistId,
-      size: `20"x30"`,
-    },
-  });
+      idGeneral: generateCode(),
+      groupId: newGroup.id,
+      // tag: {
+      //   connectOrCreate: tagOperations,
+      // },
+      types: {
+        connectOrCreate: {
+          where: { value: "Poster" },
+          create: { value: "Poster" },
+        },
+      },
+      sizes: {
+        connectOrCreate: [
+          {
+            where: { value: `17"x25.5"` },
+            create: { value: `17"x25.5"` },
+          },
+          {
+            where: { value: `24"x36"` },
+            create: { value: `24"x36"` },
+          },
+        ],
+      },
+    });
+
+    const createDesignPosterSmall = await prisma.design.create({
+      //@ts-ignore
+      data: {
+        //@ts-ignore
+        productId: newProductPoster.id,
+        positionX: 0,
+        positionY: 0,
+        angle: 0,
+        scale: 0,
+        price: 25.99,
+        priceId: priceProductPosterSmall.id,
+        url: imgCropURL.Location,
+        urlLogo: imgArtURL.Location,
+        artistId: artistId,
+        size: `17"x25.5"`,
+      },
+    });
+
+    const createDesignPosterLarge = await prisma.design.create({
+      //@ts-ignore
+      data: {
+        //@ts-ignore
+        productId: newProductPoster.id,
+        positionX: 0,
+        positionY: 0,
+        angle: 0,
+        scale: 0,
+        price: 39.99,
+        priceId: priceProductPosterLarge.id,
+        url: imgCropURL.Location,
+        urlLogo: imgArtURL.Location,
+        artistId: artistId,
+        size: `24"x36"`,
+      },
+    });
+
+  }
+
 
   res.status(200).json({
     message: "Updated image",
