@@ -54,6 +54,9 @@ class ProductDAO {
             },
           },
         },
+        orderBy: {
+          createdAt: 'desc', // Sort by creation date in descending order
+        },
       }),
       prisma.product.count({
         where: {
