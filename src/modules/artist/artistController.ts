@@ -84,6 +84,20 @@ const getAll = async (req: Request, res: Response) => {
   });
 };
 
+const getRandomArtists = async (req: Request, res: Response) => {
+  //@ts-ignore
+  const page = parseInt(req.query.page || "1");
+  const limit = 5; //5 Artists for homepage
+
+  const artist = await artistDAO.getRandomArtists(page, limit);
+
+  res.status(200).json({
+    message: "updateProfile profile",
+    artist: artist?.artists ? artist.artists : [],
+    count: artist?.count ? artist.count : 1,
+  });
+};
+
 const getProfileAndProducts = async (req: Request, res: Response) => {
   //@ts-ignore
   const page = parseInt(req.query.page || "1");
@@ -155,6 +169,7 @@ const uploadBannerWithDecorators = withErrorHandlingDecorator(uploadBanner);
 const getProfileWithDecorators = withErrorHandlingDecorator(getProfile);
 const updateProfileWithDecorators = withErrorHandlingDecorator(updateProfile);
 const getAllWithDecorators = withErrorHandlingDecorator(getAll);
+const getRandomArtistsWithDecorators = withErrorHandlingDecorator(getRandomArtists);
 const getProfileAndProductsWithDecorators = withErrorHandlingDecorator(
   getProfileAndProducts
 );
@@ -167,6 +182,7 @@ export const artistController = {
   getProfile: getProfileWithDecorators,
   updateProfile: updateProfileWithDecorators,
   getAll: getAllWithDecorators,
+  getRandomArtists: getRandomArtistsWithDecorators,
   getProfileAndProducts: getProfileAndProductsWithDecorators,
   tokenConfirm: tokenConfirmWithDecorators,
   artistConfirm: artistConfirmWithDecorators,

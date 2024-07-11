@@ -26,6 +26,7 @@ routes
   .get("/profile", authValidate, artistController.getProfile)
   .put("/profile", authValidate, artistController.updateProfile)
   .get("/all", artistController.getAll)
+  .get("/randomArtists", artistController.getRandomArtists)
   .get("/store/:id", artistController.getProfileAndProducts)
   .get("/verify/:token", artistController.artistConfirm)
   .get("/:token", artistController.tokenConfirm);

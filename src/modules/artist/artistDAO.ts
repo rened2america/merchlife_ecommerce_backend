@@ -45,6 +45,34 @@ class ArtistDAO {
       count: count,
     };
   };
+  getRandomArtists = async (
+    page: number,
+    limit: number
+  ): Promise<{ artists: any[]; count: number } | null> => {
+    console.log(page);
+    const [artists, count] = await prisma.$transaction([
+      prisma.artist.findMany({
+        skip: (page - 1) * limit,
+        take: limit,
+        include: {
+          product: {
+            take: 3,
+            include: {
+              design: {
+                take: 1
+              }
+            }
+          }
+        }
+      }),
+      prisma.artist.count(),
+    ]);
+
+    return {
+      artists: artists,
+      count: count,
+    };
+  };
 
   getProfileAndProducts = async (id: string, page: number, limit: number) => {
     console.log(id);
