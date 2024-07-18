@@ -751,34 +751,35 @@ const deleteProduct = async (req: Request, res: Response) => {
 const createGroup = async (req: Request, res: Response) => {
   const artistId = req.user.artistId;
   //@ts-ignore
-  const bufferArt = req.file.buffer;
+  const imageArt = req.body.art;
+  console.log("imageArt: ", imageArt)
   const name = req.body.name;
   const posterName = `${name} Poster`
   const canvasName = `${name} Canvas`
-  const imageCrop = req.body.imageCrop;
-  console.log("oki2", req.body.imageCrop);
+  // const imageCrop = req.body.imageCrop;
+  // console.log("oki2", req.body.imageCrop);
   const shouldCreateCanvas = req.body.shouldCreateCanvas;
   const shouldCreatePoster = req.body.shouldCreatePoster;
-  const base64Image = imageCrop.split(";base64,").pop();
-  const imgCropBuffer = Buffer.from(base64Image, "base64");
+  const base64Image = imageArt.split(";base64,").pop();
+  const artBuffer = Buffer.from(base64Image, "base64");
   const getArtist = await artistDAO.getArtistById(artistId);
   const s3 = connectionAws();
   const stripe = connectionStripe();
 
-  const paramsImgCrop = {
-    Bucket: process.env.BUCKET_IMG,
-    //@ts-ignore
-    Key: `${Date.now().toString()}-${getArtist.name}-Poster`,
-    Body: imgCropBuffer,
-    ContentType: "image/png",
-  };
+  // const paramsImgCrop = {
+  //   Bucket: process.env.BUCKET_IMG,
+  //   //@ts-ignore
+  //   Key: `${Date.now().toString()}-${getArtist.name}-Poster`,
+  //   Body: imgCropBuffer,
+  //   ContentType: "image/png",
+  // };
   //@ts-ignore
-  const imgCropURL = await s3.upload(paramsImgCrop).promise();
+  // const imgCropURL = await s3.upload(paramsImgCrop).promise();
   const paramsImgArt = {
     Bucket: process.env.BUCKET_IMG,
     //@ts-ignore
     Key: `${Date.now().toString()}-${getArtist.name}-Art`,
-    Body: bufferArt,
+    Body: artBuffer,
     ContentType: "image/png",
   };
   //@ts-ignore
@@ -797,11 +798,11 @@ const createGroup = async (req: Request, res: Response) => {
 
     const newOfProductCanvas = await stripe.products.create({
       name: `${name}-Canvas-11x14-product`,
-      images: [imgCropURL.Location],
+      images: [imgArtURL.Location],
     });
     const newOfProductCanvas2 = await stripe.products.create({
       name: `${name}-Canvas-20x30-product`,
-      images: [imgCropURL.Location],
+      images: [imgArtURL.Location],
     });
 
     const priceProductCanvas = await stripe.prices.create({
@@ -857,7 +858,7 @@ const createGroup = async (req: Request, res: Response) => {
         scale: 0,
         price: 49.95,
         priceId: priceProductCanvas.id,
-        url: imgCropURL.Location,
+        url: imgArtURL.Location,
         urlLogo: imgArtURL.Location,
         artistId: artistId,
         size: `11"x14"`,
@@ -875,7 +876,7 @@ const createGroup = async (req: Request, res: Response) => {
         scale: 0,
         price: 99.99,
         priceId: priceProduct.id,
-        url: imgCropURL.Location,
+        url: imgArtURL.Location,
         urlLogo: imgArtURL.Location,
         artistId: artistId,
         size: `20"x30"`,
@@ -887,11 +888,11 @@ const createGroup = async (req: Request, res: Response) => {
     // Create Price of stripe
     const newOfProductPosterSmall = await stripe.products.create({
       name: `${name}-Poster-17x25.5-product`,
-      images: [imgCropURL.Location],
+      images: [imgArtURL.Location],
     });
     const newOfProductPosterLarge = await stripe.products.create({
       name: `${name}-Poster-24x36-product`,
-      images: [imgCropURL.Location],
+      images: [imgArtURL.Location],
     });
 
     const priceProductPosterSmall = await stripe.prices.create({
@@ -947,7 +948,7 @@ const createGroup = async (req: Request, res: Response) => {
         scale: 0,
         price: 25.99,
         priceId: priceProductPosterSmall.id,
-        url: imgCropURL.Location,
+        url: imgArtURL.Location,
         urlLogo: imgArtURL.Location,
         artistId: artistId,
         size: `17"x25.5"`,
@@ -965,7 +966,7 @@ const createGroup = async (req: Request, res: Response) => {
         scale: 0,
         price: 39.99,
         priceId: priceProductPosterLarge.id,
-        url: imgCropURL.Location,
+        url: imgArtURL.Location,
         urlLogo: imgArtURL.Location,
         artistId: artistId,
         size: `24"x36"`,

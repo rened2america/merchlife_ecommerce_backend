@@ -103,6 +103,7 @@ class ArtistDAO {
         skip: (page - 1) * limit,
         take: limit,
         where: {
+          types:{some:{value:{notIn:['Poster','Canvas']}}},
           artist: {
             name: id,
           },
@@ -114,7 +115,7 @@ class ArtistDAO {
           types: true,
         },
       }),
-      prisma.product.count(),
+      prisma.product.count({where:{types:{some:{value:{notIn:['Poster','Canvas']}}}}}),
       prisma.artist.findFirst({
         where: {
           name: id,
