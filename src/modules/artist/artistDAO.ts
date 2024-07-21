@@ -108,12 +108,8 @@ class ArtistDAO {
             name: id,
           },
         },
-        include: {
-          design: {
-            take:1
-          },
-          types: true,
-        },
+        include:{design:{take:1},types:true}
+        
       }),
       prisma.product.count({where:{types:{some:{value:{notIn:['Poster','Canvas']}}}}}),
       prisma.artist.findFirst({

@@ -20,6 +20,7 @@ routes
   .get("/categories/:category", productController.getArtsFromCategory)
   .get("/groupRelation/section/:groupId", productController.getGroupRelation)
   .get("/groupRelation/:artist", productController.getGroupRelationByArtist)
+  .get("/productsByGroup/:artist", productController.getProductByGroupWithArtist)
   .get("/allByUser", authValidate, productController.getByUser)
   .post("/payment", productController.session)
   .get("/infoorders/orders", authValidate, productController.getOrders)

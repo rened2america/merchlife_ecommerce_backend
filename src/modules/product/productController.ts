@@ -773,7 +773,7 @@ const createGroup = async (req: Request, res: Response) => {
   //   Body: imgCropBuffer,
   //   ContentType: "image/png",
   // };
-  //@ts-ignore
+    //@ts-ignore
   // const imgCropURL = await s3.upload(paramsImgCrop).promise();
   const paramsImgArt = {
     Bucket: process.env.BUCKET_IMG,
@@ -972,9 +972,7 @@ const createGroup = async (req: Request, res: Response) => {
         size: `24"x36"`,
       },
     });
-
   }
-
 
   res.status(200).json({
     message: "Updated image",
@@ -1032,6 +1030,7 @@ const getGroupRelation = async (req: Request, res: Response) => {
 
 const getGroupRelationByArtist = async (req: Request, res: Response) => {
   const artistName = req.params.artist.replace(/-/g, " ");
+
   //@ts-ignore
   const groupRelation = await prisma.group.findMany({
     where: {
@@ -1118,7 +1117,33 @@ const getArtsFromCategory = async (req: Request, res: Response) => {
     products: uniqueProducts,
   });
 };
+const getProductByGroupWithArtist = async (req: Request, res: Response) => {
+  const artist = req.params.artist.replace("-", " ");
+  const productId = Number(req.query.productId);
+  const type = String(req.query.type);
+  const variant = String(req.query.variant);
 
+  const data = await prisma.artist.findFirst({
+    where: {
+      name: artist,
+    },
+    select: {
+      product: {
+        where: {
+          id: productId,
+        },
+        select: {
+          id: true,
+          title: true,
+          price: true,
+          types: { where: { value: type }, select: { value: true } },
+          design: {select:{size:true,url:true,variant:true} },
+        },
+      },
+    },
+  });
+  res.status(200).json({ data: data });
+};
 const getArtsFromHome = async (req: Request, res: Response) => {
   const arts = await prisma.group.findMany({
     where: {
@@ -1248,6 +1273,9 @@ const getArtsFromCategoryWithDecorators =
 const getArtsFromHomeWithDecorators =
   withErrorHandlingDecorator(getArtsFromHome);
 const createCanvasWithDecorators = withErrorHandlingDecorator(createCanvas);
+const getProductByGroupWithArtistWithDecorators = withErrorHandlingDecorator(
+  getProductByGroupWithArtist
+);
 
 export const productController = {
   create: createWithDecorators,
@@ -1268,4 +1296,5 @@ export const productController = {
   getArtsFromCategory: getArtsFromCategoryWithDecorators,
   getArtsFromHome: getArtsFromHomeWithDecorators,
   createCanvas: createCanvasWithDecorators,
+  getProductByGroupWithArtist: getProductByGroupWithArtistWithDecorators,
 };
