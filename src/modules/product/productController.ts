@@ -408,7 +408,7 @@ const session = async (req: Request, res: Response) => {
   const NormalizeProducts = req.body.products.map((product: any) => {
     return {
       price: product.priceId,
-      quantity: product.count,
+      quantity: product.quantity,
     };
   });
   const stripe = connectionStripe();
