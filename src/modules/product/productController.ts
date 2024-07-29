@@ -1137,7 +1137,7 @@ const getProductByGroupWithArtist = async (req: Request, res: Response) => {
           title: true,
           price: true,
           types: { where: { value: type }, select: { value: true } },
-          design: {select:{size:true,url:true,variant:true} },
+          design: {select:{size:true,url:true,variant:true,priceId:true} },
         },
       },
     },
