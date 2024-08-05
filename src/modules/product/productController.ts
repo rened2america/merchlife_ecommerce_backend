@@ -1248,6 +1248,77 @@ const createCanvas = async (req: Request, res: Response) => {
     createDesign,
   });
 };
+const findProductsByFilters = async(req:Request, res:Response)=> {
+  const {
+    variant,
+    type,
+    size,
+    minPrice,
+    maxPrice,
+    page = 1,
+    pageSize = 9,
+  } = req.query;
+  const where: any = {}; // Use any for flexibility
+
+  if (variant) {
+    where.design = {
+    some: {
+      variant: { contains: variant, mode: "insensitive" },
+    },
+  };
+}
+
+// Filter by type
+if (type) {
+  where.types = {
+    some: {
+      value: { equals: type },
+    },
+  };
+} else{
+  where.types = {
+    none: {
+      value:{in:["Poster", "Canvas"]}
+    },
+  };
+}
+
+// Filter by size
+if (size) {
+  where.sizes = {
+    some: {
+      value: { equals: size },
+    },
+  };
+}
+
+// Filter by price range
+if (minPrice || maxPrice) {
+  where.price = {};
+  if (minPrice) {
+    where.price.gte = minPrice;
+  }
+  if (maxPrice) {
+    where.price.lte = maxPrice;
+  }
+}
+
+const skip = (Number(page) - 1) * Number(pageSize);
+
+const products = await prisma.product.findMany({
+  where,
+  include: {
+    design: true,
+    types: true,
+    sizes: true,
+    artist:true
+  },
+  // skip,
+  // take: Number(pageSize),
+});  
+res.json(products);
+return 
+}
 
 const createWithDecorators = withErrorHandlingDecorator(create);
 const getAllWithDecorators = withErrorHandlingDecorator(getAll);
@@ -1276,6 +1347,9 @@ const createCanvasWithDecorators = withErrorHandlingDecorator(createCanvas);
 const getProductByGroupWithArtistWithDecorators = withErrorHandlingDecorator(
   getProductByGroupWithArtist
 );
+const findProductsByFiltersWithDecorators = withErrorHandlingDecorator(
+  findProductsByFilters
+);
 
 export const productController = {
   create: createWithDecorators,
@@ -1297,4 +1371,5 @@ export const productController = {
   getArtsFromHome: getArtsFromHomeWithDecorators,
   createCanvas: createCanvasWithDecorators,
   getProductByGroupWithArtist: getProductByGroupWithArtistWithDecorators,
+  findProductsByFilters: findProductsByFiltersWithDecorators,
 };

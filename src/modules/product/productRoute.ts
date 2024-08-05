@@ -39,6 +39,7 @@ routes
   .put("/", authValidate, productController.update)
   .get("/unique/:id", productController.getByIdUnique)
   .delete("/:productId", authValidate, productController.delete)
-  .get("/:id", productController.getById);
+  .get("/:id", productController.getById)
+  .get("/findProductsByFilters/:id",productController.findProductsByFilters);
 
 export const productRoute = routes;
