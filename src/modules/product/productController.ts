@@ -532,7 +532,7 @@ const webhook = async (req: Request, res: Response) => {
     const headers = new Headers();
     headers.append("Content-Type", "application/json");
     headers.append("Authorization", `Basic ${process.env.AUTH_SHIPSTATION!}`);
-    function getCurrentDateTime() {
+    function getCurrentDateTime(isOrderNumber: boolean) {
       let now = new Date();
 
       let year = now.getFullYear();
@@ -543,12 +543,12 @@ const webhook = async (req: Request, res: Response) => {
       let seconds = now.getSeconds().toString().padStart(2, "0");
       let milliseconds = now.getMilliseconds().toString().padEnd(3, "0");
 
-      return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}000`;
+      return isOrderNumber ? `${year}${month}${day}${hours}${minutes}${seconds}${milliseconds}` : `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}000`;
     }
 
     const raw = JSON.stringify({
-      orderNumber: req.body.data.object.id,
-      orderDate: getCurrentDateTime(),
+      orderNumber: getCurrentDateTime(true),
+      orderDate: getCurrentDateTime(false),
       orderStatus: "awaiting_shipment",
       customerUsername: user.name ? user.name : "",
       customerEmail: user.email ? user.email : "",
@@ -579,6 +579,7 @@ const webhook = async (req: Request, res: Response) => {
         residential: true,
       },
       items: listOfItems,
+      advancedOptions: { source: 'merchlife' }
     });
 
     const requestOptions = {
