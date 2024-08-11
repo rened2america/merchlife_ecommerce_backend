@@ -211,7 +211,7 @@ const create = async (req: Request, res: Response) => {
     ImagesUrl,
     stripe,
     productName,
-    priceOfProduct(type),
+    productPrice,
     sizeOptionsOfProduct(type)
   );
 
