@@ -1256,17 +1256,25 @@ const findProductsByFilters = async(req:Request, res:Response)=> {
     size,
     minPrice,
     maxPrice,
+    searchWord,
     page = 1,
     pageSize = 9,
   } = req.query;
   const where: any = {}; // Use any for flexibility
-
+  const designWhere:any = {};
+  const typesWhere:any = {};
   if (variant) {
     where.design = {
     some: {
       variant: { contains: variant, mode: "insensitive" },
     },
   };
+  designWhere.variant = { contains: variant, mode: "insensitive" }
+}
+if(searchWord){
+  where.title = {
+    contains:searchWord.toString(),mode: 'insensitive'
+  }
 }
 
 // Filter by type
@@ -1276,6 +1284,7 @@ if (type) {
       value: { equals: type },
     },
   };
+  typesWhere.value = {equals: type}
 } else{
   where.types = {
     none: {
@@ -1291,6 +1300,7 @@ if (size) {
       value: { equals: size },
     },
   };
+  designWhere.size = { contains: size}
 }
 
 // Filter by price range
@@ -1308,16 +1318,18 @@ const skip = (Number(page) - 1) * Number(pageSize);
 
 const products = await prisma.product.findMany({
   where,
-  include: {
-    design: true,
-    types: true,
-    sizes: true,
-    artist:true
-  },
-  // skip,
-  // take: Number(pageSize),
+  select:{id:true,price:true,design:{select:{url:true,size:true,variant:true},where:designWhere},types:{select:{value:true},where:typesWhere},artist:{select:{name:true}}},
+  // include: {
+  //   design: true,
+  //   types: true,
+  //   sizes: true,
+  //   artist:true
+  // },
+  skip,
+  take: Number(pageSize),
 });  
-res.json(products);
+const productCount = await prisma.product.count({where})
+res.json({data:products,count:productCount});
 return 
 }
 
