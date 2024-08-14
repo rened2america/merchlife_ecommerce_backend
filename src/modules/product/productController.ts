@@ -1257,6 +1257,7 @@ const findProductsByFilters = async(req:Request, res:Response)=> {
     minPrice,
     maxPrice,
     searchWord,
+    sort,
     page = 1,
     pageSize = 9,
   } = req.query;
@@ -1315,6 +1316,7 @@ if (minPrice || maxPrice) {
 }
 
 const skip = (Number(page) - 1) * Number(pageSize);
+const sortBy:{price:"asc"|"desc"}|{} = (sort==="HighToLow")? {price:"desc"} : (sort==="LowToHigh")?{price:"asc"}:{}
 
 const products = await prisma.product.findMany({
   where,
@@ -1325,6 +1327,7 @@ const products = await prisma.product.findMany({
   //   sizes: true,
   //   artist:true
   // },
+  orderBy:sortBy,
   skip,
   take: Number(pageSize),
 });  
