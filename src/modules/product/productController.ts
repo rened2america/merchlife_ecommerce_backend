@@ -11,6 +11,9 @@ import { connectionAws } from "../../utils/configAws";
 import { round } from "mathjs";
 import { generateCode } from "../../utils/generateCode";
 import artistDAO from "../artist/artistDAO";
+
+import sgMail from "@sendgrid/mail";
+
 const create = async (req: Request, res: Response) => {
   console.log("req body: ",req.body)
   const { x, y, angle, scale, tags, type, groupId } = req.body;
@@ -592,9 +595,60 @@ const webhook = async (req: Request, res: Response) => {
       .then((response) => response.json())
       .then((result) => console.log(result))
       .catch((error) => console.log("error", error));
+    
+    sendOrderSuccessfullEmail(user.email, listOfItems)
   }
   res.sendStatus(200);
 };
+
+const sendOrderSuccessfullEmail = async ( email: string, listOfItems: any[] ) => {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
+  let orderDetails = ""
+  listOfItems.map((item)=>{
+    orderDetails += `${item.name} <br> ${item.quantity} <br> ${item.unitPrice} <br>`
+  })
+
+  const msg = {
+    to: email, 
+    from: "raj@d2america.com", 
+    subject: "Thank you for the order. Here is your order details",
+    text: "merchlife",
+    html: orderDetails
+  };
+
+  const emailSent = await sgMail.send(msg);
+  return emailSent;
+};
+
+// const fulfillmentWebhook = async (req: Request, res: Response) => {
+  
+//   const resourcetype = req.body.resource_type;
+//   const resourceUrl = req.body.resource_url
+  
+//   const headers = new Headers();
+//   headers.append("Content-Type", "application/json");
+//   headers.append("Authorization", `Basic ${process.env.AUTH_SHIPSTATION!}`);
+
+//   const requestOptions = {
+//     method: "GET",
+//     headers: headers,      
+//   };
+
+//   if ( resourcetype === "FULFILLMENT_SHIPPED" ) {    
+//     fetch(resourceUrl, requestOptions)
+//       .then((response) => response.json())
+//       .then((result) => console.log(result))
+//       .catch((error) => console.log("error", error));
+//   }
+
+//   else if ( resourcetype === "FULFILLMENT_REJECTED" ){
+//     fetch(resourceUrl, requestOptions)
+//     .then((response) => response.json())
+//     .then((result) => console.log(result))
+//     .catch((error) => console.log("error", error));
+//   }
+//   res.sendStatus(200);
+// };
 
 const getOrders = async (req: Request, res: Response) => {
   const artistId = req.user.artistId;
@@ -1344,6 +1398,7 @@ const getByIdUniqueWithDecorators = withErrorHandlingDecorator(getByIdUnique);
 
 const sessionWithDecorators = withErrorHandlingDecorator(session);
 const webhookWithDecorators = withErrorHandlingDecorator(webhook);
+// const fulfillmentWebhookWithDecorators = withErrorHandlingDecorator(fulfillmentWebhook);
 const getOrdersWithDecorators = withErrorHandlingDecorator(getOrders);
 const updateWithDecorators = withErrorHandlingDecorator(update);
 const deleteWithDecorators = withErrorHandlingDecorator(deleteProduct);
@@ -1374,6 +1429,7 @@ export const productController = {
   getById: getByIdWithDecorators,
   session: sessionWithDecorators,
   webhook: webhookWithDecorators,
+  // fulfillmentWebhook: fulfillmentWebhookWithDecorators,  
   getOrders: getOrdersWithDecorators,
   update: updateWithDecorators,
   delete: deleteWithDecorators,

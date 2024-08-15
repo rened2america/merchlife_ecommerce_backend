@@ -36,6 +36,11 @@ routes
     express.raw({ type: "application/json" }),
     productController.webhook
   )
+  // .post(
+  //   "/fulfillment-webhookkkkkk",
+  //   express.raw({ type: "application/json" }),
+  //   productController.fulfillmentWebhook
+  // )
   .put("/", authValidate, productController.update)
   .get("/unique/:id", productController.getByIdUnique)
   .delete("/:productId", authValidate, productController.delete)
