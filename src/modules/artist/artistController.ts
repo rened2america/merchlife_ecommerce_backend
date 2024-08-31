@@ -28,7 +28,9 @@ const uploadAvatar = async (req: Request, res: Response) => {
 const uploadBanner = async (req: Request, res: Response) => {
   const artistId = req.user.artistId;
   //@ts-ignore
-  const bufferBanner = req.file.buffer;
+  const imgBanner = req.body.banner;
+  const base64Image = imgBanner.split(";base64,").pop();
+  const bufferBanner = Buffer.from(base64Image, "base64");
   const getArtist = await artistDAO.getArtistById(artistId);
   const s3 = connectionAws();
   const paramsImgLogo = {
