@@ -640,8 +640,8 @@ const sendOrderSuccessfulEmail = async (orderDetails, user, listOfItems) => {
               <h1>MERCHLIFE</h1>
             </td>
             <td>
-              <h2>Order #${orderDetails.orderNumber}</h2>
-              <h2>Date: ${orderDetails.orderDate}</h2>
+              <h4>Order #${orderDetails.orderNumber}</h2>
+              <h4>Date: ${orderDetails.orderDate}</h2>
             </td>
           </tr>
         </table>
