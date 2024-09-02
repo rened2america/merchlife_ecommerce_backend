@@ -619,10 +619,10 @@ const sendOrderSuccessfulEmail = async (orderDetails, user, listOfItems) => {
       <style>
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f8f8f8; }
         .container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff; }
-        .header { display: flex; justify-content: space-between; align-items: center; }
-        .header img { width: 40px; height: 40px; }
-        .header h1 { font-size: 24px; margin: 0; color: #333333; }
-        .header h2 { font-size: 20px; margin: 0; color: #555555; }
+        .header-table { width: 100%; }
+        .header-table img { width: 40px; height: 40px; }
+        .header-table h1 { font-size: 24px; margin: 0; color: #333333; }
+        .header-table h2 { font-size: 20px; margin: 0; color: #555555; text-align: right; }
         .address { margin: 20px 0; color: #555555; }
         .order-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         .order-table th, .order-table td { border: 1px solid #dddddd; padding: 8px; text-align: left; }
@@ -633,21 +633,30 @@ const sendOrderSuccessfulEmail = async (orderDetails, user, listOfItems) => {
     </head>
     <body>
       <div class="container">
-        <div class="header">
-          <div>
-            <img src="https://cdn.pixabay.com/photo/2016/06/13/17/30/mail-1454731_640.png" alt="logo" />
-            <h1>MERCHLIFE</h1>
-          </div>
-          <div>
-            <h2>Order #${orderDetails.orderNumber}</h2>
-            <p>Order date: ${orderDetails.orderDate}</p>
-          </div>
-        </div>
+        <table class="header-table" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td>
+              <img src="https://cdn.pixabay.com/photo/2016/06/13/17/30/mail-1454731_640.png" alt="logo" />
+              <h1>MERCHLIFE</h1>
+            </td>
+            <td>
+              <h2>Order #${orderDetails.orderNumber}</h2>
+              <h2>Date: ${orderDetails.orderDate}</h2>
+            </td>
+          </tr>
+        </table>
 
         <div class="address">
           <h3>Bill to:</h3>
           <p>${user.name}</p>
-          <p>${user.address.line1 && (user.address.line1 + ",<br />")}${user.address.line2 && (user.address.line2 + ",<br />")}${user.address.city && user.address.city}, ${user.address.state && user.address.state} ${user.address.postal_code && user.address.state},<br />${user.address.country && user.address.country}</p>
+          <p>
+            ${user.address.line1 ? (user.address.line1 + ",<br />") : ""}
+            ${user.address.line2 ? (user.address.line2 + ",<br />") : ""}
+            ${user.address.city ? user.address.city : ""}
+            ${user.address.state ? ", " + user.address.state : ""}
+            ${user.address.postal_code ? " " + user.address.postal_code : ""}
+            ${user.address.country ? ",<br />" + user.address.country : ""}
+          </p>
         </div>
 
         <table class="order-table">
@@ -661,35 +670,34 @@ const sendOrderSuccessfulEmail = async (orderDetails, user, listOfItems) => {
           </thead>
           <tbody>`;
 
-  // Append each item from listOfItems
-  listOfItems.forEach(item => {
-    orderDetails += `
-            <tr>
-              <td>${item.name}</td>
-              <td>${item.quantity}</td>
-              <td>$${item.unitPrice.toFixed(2)}</td>
-              <td>$${(item.quantity * item.unitPrice).toFixed(2)}</td>
-            </tr>`;
-  });
+          listOfItems.forEach(item => {
+            orderDetailsHtml += `
+                      <tr>
+                        <td>${item.name}</td>
+                        <td>${item.quantity}</td>
+                        <td>$${item.unitPrice.toFixed(2)}</td>
+                        <td>$${(item.quantity * item.unitPrice).toFixed(2)}</td>
+                      </tr>`;
+          });
 
-  orderDetails += `
-          </tbody>
-        </table>
+          orderDetailsHtml += `
+              </tbody>
+            </table>
 
-        <div class="total">
-          Total Amount: $${totalAmount.toFixed(2)}
-        </div>
+            <div class="total">
+              Total Amount: $${totalAmount.toFixed(2)}
+            </div>
 
-        <div class="footer">
-          <h4>Thank you!</h4>
-          <p>If you have any questions concerning this order, use the following contact information:</p>
-          <p>Email: support@merchlife.com</p>
-          <p>Phone: +1 253 376 0307</p>
-          <p>© 2024 MERCHLIFE.</p>
-        </div>
-      </div>
-    </body>
-    </html>`;
+            <div class="footer">
+              <h4>Thank you!</h4>
+              <p>If you have any questions concerning this order, use the following contact information:</p>
+              <p>Email: support@merchlife.com</p>
+              <p>Phone: +1 253 376 0307</p>
+              <p>© 2024 MERCHLIFE.</p>
+            </div>
+          </div>
+        </body>
+        </html>`;
 
   const msg = {
     to: user.email,
