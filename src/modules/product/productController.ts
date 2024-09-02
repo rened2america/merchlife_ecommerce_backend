@@ -595,168 +595,106 @@ const webhook = async (req: Request, res: Response) => {
       .then((response) => response.json())
       .then((result) => console.log(result))
       .catch((error) => console.log("error", error));
-    
-    sendOrderSuccessfullEmail(user.email, listOfItems)
+
+    sendOrderSuccessfulEmail(user.email, listOfItems)
   }
   res.sendStatus(200);
 };
 
-const sendOrderSuccessfullEmail = async ( email: string, listOfItems: any[] ) => {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
-  // let orderDetails = ""
-  // listOfItems.map((item)=>{
-  //   orderDetails += `${item.name} <br> ${item.quantity} <br> ${item.unitPrice} <br>`
-  // })
+const sendOrderSuccessfulEmail = async (email, listOfItems) => {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-  let orderDetails = `<!doctype html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body>
-  <div class="max-w-[85rem] px-4 sm:px-6 lg:px-8 mx-auto my-4 sm:my-10">
-      <div class="sm:w-11/12 lg:w-3/4 mx-auto">
-        <div class="flex flex-col p-4 sm:p-10 bg-white shadow-md rounded-xl">
-          
-          <div class="flex justify-between">
-            <div>
-            <img src="https://cdn.pixabay.com/photo/2016/06/13/17/30/mail-1454731_640.png" width="40" height="40" alt="logo" />
-              <h1 class="mt-2 text-lg md:text-xl font-semibold text-black">MERCHLIFE</h1>
-            </div>
-            
-    
-            <div class="text-end">
-              <h2 class="text-2xl md:text-3xl font-semibold text-gray-800">Order #</h2>
-              <span class="mt-1 block text-gray-500">3682303</span>
-    
-            
-            </div>
-            
+  // Calculate total amount
+  const totalAmount = listOfItems.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+
+  // Build the order details for all items
+  let orderDetails = `
+    <!doctype html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f8f8f8; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff; }
+        .header { display: flex; justify-content: space-between; align-items: center; }
+        .header img { width: 40px; height: 40px; }
+        .header h1 { font-size: 24px; margin: 0; color: #333333; }
+        .header h2 { font-size: 20px; margin: 0; color: #555555; }
+        .address { margin: 20px 0; color: #555555; }
+        .order-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .order-table th, .order-table td { border: 1px solid #dddddd; padding: 8px; text-align: left; }
+        .order-table th { background-color: #f4f4f4; }
+        .total { font-size: 18px; font-weight: bold; text-align: right; margin-top: 20px; }
+        .footer { margin-top: 20px; color: #555555; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <div>
+            <img src="https://cdn.pixabay.com/photo/2016/06/13/17/30/mail-1454731_640.png" alt="logo" />
+            <h1>MERCHLIFE</h1>
           </div>
-          
-    
-          
-          <div class="mt-8 grid sm:grid-cols-2 gap-3">
-            <div>
-              <h3 class="text-lg font-semibold text-gray-800">Bill to:</h3>
-              <h3 class="text-lg font-semibold text-gray-800">Sara Williams</h3>
-              <address class="mt-2 not-italic text-gray-500">
-                280 Suzanne Throughway,<br />
-                Breannabury, OR 45801,<br />
-                United States<br />
-              </address>
-            </div>
-            
-    
-            <div class="sm:text-end space-y-2">
-              
-              <div class="grid grid-cols-2 sm:grid-cols-1 gap-3 sm:gap-2">
-                <dl class="grid sm:grid-cols-5 gap-x-3">
-                  <dt class="col-span-3 font-semibold text-gray-800">Order date:</dt>
-                  <dd class="col-span-2 text-gray-500">03/10/2018</dd>
-                </dl>
-                <dl class="grid sm:grid-cols-5 gap-x-3">
-                  <dt class="col-span-3 font-semibold text-gray-800">Due date:</dt>
-                  <dd class="col-span-2 text-gray-500">03/11/2018</dd>
-                </dl>
-              </div>
-              
-            </div>
-            
+          <div>
+            <h2>Order #3682303</h2>
+            <p>Order date: 03/10/2018</p>
+            <p>Due date: 03/11/2018</p>
           </div>
-          
-          
-    
-          
-          <div class="mt-6">
-            <div class="border border-gray-200 p-4 rounded-lg space-y-4">
-              <div class="hidden sm:grid sm:grid-cols-6">
-                <div class="sm:col-span-2 text-xs font-medium text-gray-500 uppercase"></div>
-                <div class="sm:col-span-2 text-xs font-medium text-gray-500 uppercase">Item</div>
-                <div class="text-start text-xs font-medium text-gray-500 uppercase">Qty</div>
-                <div class="text-end text-xs font-medium text-gray-500 uppercase">Amount</div>
-              </div>
-    
-              <div class="hidden sm:block border-b border-gray-200"></div>
-    
-              <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 ">
-                <div class="col-span-full sm:col-span-2">
-                  <h5 class="sm:hidden text-xs font-medium text-gray-500 uppercase">Item</h5>
-                  <img src="${listOfItems[0].imageUrl}" class="w-[150px] h-[150px]" alt="logo" />
-                </div>
-                <div class="col-span-full sm:col-span-2 content-center">
-                  <h5 class="sm:hidden text-xs font-medium text-gray-500 uppercase">Item</h5>
-                  <p class="font-medium text-gray-800">${listOfItems[0].name}</p>
-                </div>
-                <div class="content-center">
-                  <h5 class="sm:hidden text-xs font-medium text-gray-500 uppercase">Qty</h5>
-                  <p class="text-gray-800">${listOfItems[0].quantity}</p>
-                </div>
-                <div class="content-center">
-                  <h5 class="sm:hidden text-xs font-medium text-gray-500 uppercase">Amount</h5>
-                  <p class="sm:text-end text-gray-800">$500</p>
-                </div>
-              </div>
-    
-              <div class="hidden sm:block border-b border-gray-200"></div>
-    
-              
-    
-              
-            </div>
-          </div>
-       
-          <div class="mt-8 flex sm:justify-end">
-            <div class="w-full max-w-2xl sm:text-end space-y-2">
-              
-              <div class="grid grid-cols-2 sm:grid-cols-1 gap-3 sm:gap-2">
-              
-    
-                <dl class="grid sm:grid-cols-5 gap-x-3">
-                  <dt class="col-span-3 font-semibold text-gray-800">Total:</dt>
-                  <dd class="col-span-2 text-gray-500">$2750.00</dd>
-                </dl>
-    
-                <dl class="grid sm:grid-cols-5 gap-x-3">
-                  <dt class="col-span-3 font-semibold text-gray-800">Tax:</dt>
-                  <dd class="col-span-2 text-gray-500">$39.00</dd>
-                </dl>
-    
-                <dl class="grid sm:grid-cols-5 gap-x-3">
-                  <dt class="col-span-3 font-semibold text-gray-800">Amount paid:</dt>
-                  <dd class="col-span-2 text-gray-500">$2789.00</dd>
-                </dl>
-    
-               
-              </div>
-            
-            </div>
-          </div>
-        
-          <div class="mt-8 sm:mt-12">
-            <h4 class="text-lg font-semibold text-gray-800">Thank you!</h4>
-            <p class="text-gray-500">If you have any questions concerning this order, use the following contact information:</p>
-            <div class="mt-2">
-              <p class="block text-sm font-medium text-gray-800">support@merchlife.com</p>
-              <p class="block text-sm font-medium text-gray-800">+1 253 376 0307</p>
-            </div>
-          </div>
-    
-          <p class="mt-5 text-sm text-gray-500">© 2024 MERCHLIFE.</p>
         </div>
 
+        <div class="address">
+          <h3>Bill to:</h3>
+          <p>Sara Williams</p>
+          <p>280 Suzanne Throughway,<br />Breannabury, OR 45801,<br />United States</p>
+        </div>
+
+        <table class="order-table">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Qty</th>
+              <th>Unit Price</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>`;
+
+  // Append each item from listOfItems
+  listOfItems.forEach(item => {
+    orderDetails += `
+            <tr>
+              <td>${item.name}</td>
+              <td>${item.quantity}</td>
+              <td>$${item.unitPrice.toFixed(2)}</td>
+              <td>$${(item.quantity * item.unitPrice).toFixed(2)}</td>
+            </tr>`;
+  });
+
+  orderDetails += `
+          </tbody>
+        </table>
+
+        <div class="total">
+          Total Amount: $${totalAmount.toFixed(2)}
+        </div>
+
+        <div class="footer">
+          <h4>Thank you!</h4>
+          <p>If you have any questions concerning this order, use the following contact information:</p>
+          <p>Email: support@merchlife.com</p>
+          <p>Phone: +1 253 376 0307</p>
+          <p>© 2024 MERCHLIFE.</p>
+        </div>
       </div>
-    </div>
-</body>
-</html>`
+    </body>
+    </html>`;
 
   const msg = {
-    to: email, 
-    from: "raj@d2america.com", 
-    subject: "Thank you for the order. Here is your order details",
-    text: "merchlife",
+    to: email,
+    from: "raj@d2america.com",
+    subject: "Thank you for the order. Here are your order details",
+    text: "MERCHLIFE",
     html: orderDetails
   };
 

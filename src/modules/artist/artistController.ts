@@ -8,7 +8,10 @@ import artistService from "./artistService";
 const uploadAvatar = async (req: Request, res: Response) => {
   const artistId = req.user.artistId;
   //@ts-ignore
-  const bufferAvatar = req.file.buffer;
+  const imgAvatar = req.body.avatar;
+  const base64Image = imgAvatar.split(";base64,").pop();
+  const bufferAvatar = Buffer.from(base64Image, "base64");
+
   const getArtist = await artistDAO.getArtistById(artistId);
   const s3 = connectionAws();
   const paramsImgLogo = {
