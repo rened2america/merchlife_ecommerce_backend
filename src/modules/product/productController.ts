@@ -584,7 +584,10 @@ const webhook = async (req: Request, res: Response) => {
       items: listOfItems,
       advancedOptions: { source: 'merchlife' }
     });
-
+    const orderDetails = {
+      orderNumber: getCurrentDateTime(true),
+      orderDate: getCurrentDateTime(false)
+    }
     const requestOptions = {
       method: "POST",
       headers: headers,
@@ -596,19 +599,19 @@ const webhook = async (req: Request, res: Response) => {
       .then((result) => console.log(result))
       .catch((error) => console.log("error", error));
 
-    sendOrderSuccessfulEmail(user.email, listOfItems)
+    sendOrderSuccessfulEmail(orderDetails, user.email, listOfItems)
   }
   res.sendStatus(200);
 };
 
-const sendOrderSuccessfulEmail = async (email, listOfItems) => {
+const sendOrderSuccessfulEmail = async (orderDetails, user, listOfItems) => {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
   // Calculate total amount
   const totalAmount = listOfItems.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
 
   // Build the order details for all items
-  let orderDetails = `
+  let orderDetailsHtml = `
     <!doctype html>
     <html>
     <head>
@@ -637,16 +640,15 @@ const sendOrderSuccessfulEmail = async (email, listOfItems) => {
             <h1>MERCHLIFE</h1>
           </div>
           <div>
-            <h2>Order #3682303</h2>
-            <p>Order date: 03/10/2018</p>
-            <p>Due date: 03/11/2018</p>
+            <h2>Order #${orderDetails.orderNumber}</h2>
+            <p>Order date: ${orderDetails.orderDate}</p>
           </div>
         </div>
 
         <div class="address">
           <h3>Bill to:</h3>
-          <p>Sara Williams</p>
-          <p>280 Suzanne Throughway,<br />Breannabury, OR 45801,<br />United States</p>
+          <p>${user.name}</p>
+          <p>${user.address.line1},<br />${user.address.line2},<br />${user.address.city}, ${user.address.state} ${user.address.postal_code},<br />${user.address.country}</p>
         </div>
 
         <table class="order-table">
@@ -691,11 +693,11 @@ const sendOrderSuccessfulEmail = async (email, listOfItems) => {
     </html>`;
 
   const msg = {
-    to: email,
+    to: user.email,
     from: "raj@d2america.com",
     subject: "Thank you for the order. Here are your order details",
     text: "MERCHLIFE",
-    html: orderDetails
+    html: orderDetailsHtml
   };
 
   const emailSent = await sgMail.send(msg);
