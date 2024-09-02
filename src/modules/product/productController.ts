@@ -598,7 +598,7 @@ const webhook = async (req: Request, res: Response) => {
       .then((result) => console.log(result))
       .catch((error) => console.log("error", error));
 
-    sendOrderSuccessfulEmail(orderDetails, user.email, listOfItems)
+    sendOrderSuccessfulEmail(orderDetails, user, listOfItems)
   }
   res.sendStatus(200);
 };

@@ -1,4 +1,5 @@
 import productDAO from "./productDAO";
+const sharp = require('sharp');
 
 class ProductService {
   create = async (product: any) => {
@@ -60,6 +61,29 @@ class ProductService {
     });
   };
 
+  // transformImagesFromBase64ToBuffer = async (images) => {
+  //   return Promise.all(
+  //     Object.keys(images).map(async (keyValue) => {
+  //       const imgBuffer = Buffer.from(images[keyValue].split(",")[1], "base64");
+  
+  //       // Resize the image buffer
+  //       const resizedBuffer = await this.resizeImageBuffer(imgBuffer, 500, 500); // Example dimensions
+  
+  //       return {
+  //         imgBuffer: resizedBuffer,
+  //         color: keyValue,
+  //       };
+  //     })
+  //   );
+  // };
+  
+  
+  // resizeImageBuffer = async (imgBuffer, width, height) => {
+  //   const resizedBuffer = await sharp(imgBuffer)
+  //     .resize(width, height) // Set your desired dimensions
+  //     .toBuffer();
+  //   return resizedBuffer;
+  // };
   // createProductInStripe = async (
   //   products: any,
   //   stripe: any,
