@@ -15,7 +15,7 @@ import artistDAO from "../artist/artistDAO";
 import sgMail from "@sendgrid/mail";
 
 const create = async (req: Request, res: Response) => {
-  console.log("req body: ",req.body)
+  console.log("req body: ", req.body)
   const { x, y, angle, scale, tags, type, groupId } = req.body;
   console.log("Distance x", x);
   console.log("Distance y", y);
@@ -489,9 +489,8 @@ const webhook = async (req: Request, res: Response) => {
         },
       });
 
-      const sku = `PZ${design.id.toString().padStart(8, "0")}UN${
-        type[design.product.types[0].value]
-      }${color[design.variant]}${size[`S${design.size}`]}`;
+      const sku = `PZ${design.id.toString().padStart(8, "0")}UN${type[design.product.types[0].value]
+        }${color[design.variant]}${size[`S${design.size}`]}`;
 
       const item = {
         sku,
@@ -648,7 +647,7 @@ const sendOrderSuccessfulEmail = async (orderDetails, user, listOfItems) => {
         <div class="address">
           <h3>Bill to:</h3>
           <p>${user.name}</p>
-          <p>${user.address.line1},<br />${user.address.line2},<br />${user.address.city}, ${user.address.state} ${user.address.postal_code},<br />${user.address.country}</p>
+          <p>${user.address.line1 && (user.address.line1 + ",<br />")}${user.address.line2 && (user.address.line2 + ",<br />")}${user.address.city && user.address.city}, ${user.address.state && user.address.state} ${user.address.postal_code && user.address.state},<br />${user.address.country && user.address.country}</p>
         </div>
 
         <table class="order-table">
@@ -705,10 +704,10 @@ const sendOrderSuccessfulEmail = async (orderDetails, user, listOfItems) => {
 };
 
 // const fulfillmentWebhook = async (req: Request, res: Response) => {
-  
+
 //   const resourcetype = req.body.resource_type;
 //   const resourceUrl = req.body.resource_url
-  
+
 //   const headers = new Headers();
 //   headers.append("Content-Type", "application/json");
 //   headers.append("Authorization", `Basic ${process.env.AUTH_SHIPSTATION!}`);
@@ -912,7 +911,7 @@ const createGroup = async (req: Request, res: Response) => {
   //   Body: imgCropBuffer,
   //   ContentType: "image/png",
   // };
-    //@ts-ignore
+  //@ts-ignore
   // const imgCropURL = await s3.upload(paramsImgCrop).promise();
   const paramsImgArt = {
     Bucket: process.env.BUCKET_IMG,
@@ -1277,7 +1276,7 @@ const getProductByGroupWithArtist = async (req: Request, res: Response) => {
           description: true,
           price: true,
           types: { where: { value: type }, select: { value: true } },
-          design: {select:{size:true,url:true,variant:true,priceId:true} },
+          design: { select: { size: true, url: true, variant: true, priceId: true } },
         },
       },
     },
@@ -1388,7 +1387,7 @@ const createCanvas = async (req: Request, res: Response) => {
     createDesign,
   });
 };
-const findProductsByFilters = async(req:Request, res:Response)=> {
+const findProductsByFilters = async (req: Request, res: Response) => {
   const {
     variant,
     type,
@@ -1401,78 +1400,78 @@ const findProductsByFilters = async(req:Request, res:Response)=> {
     pageSize = 9,
   } = req.query;
   const where: any = {}; // Use any for flexibility
-  const designWhere:any = {};
-  const typesWhere:any = {};
+  const designWhere: any = {};
+  const typesWhere: any = {};
   if (variant) {
     where.design = {
-    some: {
-      variant: { contains: variant, mode: "insensitive" },
-    },
-  };
-  designWhere.variant = { contains: variant, mode: "insensitive" }
-}
-if(searchWord){
-  where.title = {
-    contains:searchWord.toString(),mode: 'insensitive'
+      some: {
+        variant: { contains: variant, mode: "insensitive" },
+      },
+    };
+    designWhere.variant = { contains: variant, mode: "insensitive" }
   }
-}
-
-// Filter by type
-if (type) {
-  where.types = {
-    some: {
-      value: { equals: type },
-    },
-  };
-  typesWhere.value = {equals: type}
-} else{
-  where.types = {
-    none: {
-      value:{in:["Poster", "Canvas"]}
-    },
-  };
-}
-
-// Filter by size
-if (size) {
-  where.sizes = {
-    some: {
-      value: { equals: size },
-    },
-  };
-  designWhere.size = { contains: size}
-}
-
-// Filter by price range
-if (minPrice || maxPrice) {
-  where.price = {};
-  if (minPrice) {
-    where.price.gte = minPrice;
+  if (searchWord) {
+    where.title = {
+      contains: searchWord.toString(), mode: 'insensitive'
+    }
   }
-  if (maxPrice) {
-    where.price.lte = maxPrice;
+
+  // Filter by type
+  if (type) {
+    where.types = {
+      some: {
+        value: { equals: type },
+      },
+    };
+    typesWhere.value = { equals: type }
+  } else {
+    where.types = {
+      none: {
+        value: { in: ["Poster", "Canvas"] }
+      },
+    };
   }
-}
 
-const skip = (Number(page) - 1) * Number(pageSize);
-const sortBy:{price:"asc"|"desc"}|{} = (sort==="HighToLow")? {price:"desc"} : (sort==="LowToHigh")?{price:"asc"}:{}
+  // Filter by size
+  if (size) {
+    where.sizes = {
+      some: {
+        value: { equals: size },
+      },
+    };
+    designWhere.size = { contains: size }
+  }
 
-const products = await prisma.product.findMany({
-  where,
-  select:{id:true,price:true,design:{select:{url:true,size:true,variant:true},where:designWhere},types:{select:{value:true},where:typesWhere},artist:{select:{name:true}}},
-  // include: {
-  //   design: true,
-  //   types: true,
-  //   sizes: true,
-  //   artist:true
-  // },
-  orderBy:sortBy,
-  skip,
-  take: Number(pageSize),
-});  
-const productCount = await prisma.product.count({where})
-res.json({data:products,count:productCount});
-return 
+  // Filter by price range
+  if (minPrice || maxPrice) {
+    where.price = {};
+    if (minPrice) {
+      where.price.gte = minPrice;
+    }
+    if (maxPrice) {
+      where.price.lte = maxPrice;
+    }
+  }
+
+  const skip = (Number(page) - 1) * Number(pageSize);
+  const sortBy: { price: "asc" | "desc" } | {} = (sort === "HighToLow") ? { price: "desc" } : (sort === "LowToHigh") ? { price: "asc" } : {}
+
+  const products = await prisma.product.findMany({
+    where,
+    select: { id: true, price: true, design: { select: { url: true, size: true, variant: true }, where: designWhere }, types: { select: { value: true }, where: typesWhere }, artist: { select: { name: true } } },
+    // include: {
+    //   design: true,
+    //   types: true,
+    //   sizes: true,
+    //   artist:true
+    // },
+    orderBy: sortBy,
+    skip,
+    take: Number(pageSize),
+  });
+  const productCount = await prisma.product.count({ where })
+  res.json({ data: products, count: productCount });
+  return
 }
 
 const createWithDecorators = withErrorHandlingDecorator(create);
