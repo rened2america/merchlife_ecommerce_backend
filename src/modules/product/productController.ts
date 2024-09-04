@@ -433,6 +433,33 @@ const session = async (req: Request, res: Response) => {
     .status(201)
     .json({ message: "Session obtenida", session: session ? session : {} });
 };
+const buyCredits = async (req: Request, res: Response) => {
+  const Products = [
+    {
+      price: "price_1PvG8oGkWb1Ap7UJKDhSFnAr", // Static price_id from stripe for 30 credits
+      quantity: 1,
+    }
+  ]
+    
+  const stripe = connectionStripe();
+  const session = await stripe.checkout.sessions.create({
+    mode: "payment",
+    payment_method_types: ["card"],
+    line_items: Products,
+    success_url: process.env.URL_ECOMMERCE! + "/success/",
+    cancel_url: process.env.URL_ECOMMERCE! + "/cancel/",
+    phone_number_collection: {
+      enabled: true,
+    },
+    shipping_address_collection: {
+      allowed_countries: ["US"],
+    },
+  });
+
+  res
+    .status(201)
+    .json({ message: "Session obtenida", session: session ? session : {} });
+};
 
 const webhook = async (req: Request, res: Response) => {
   const stripe = connectionStripe();
@@ -471,7 +498,55 @@ const webhook = async (req: Request, res: Response) => {
       req.body.data.object.id
     );
 
+    function getCurrentDateTime(isOrderNumber: boolean) {
+      let now = new Date();
+  
+      let year = now.getFullYear();
+      let month = (now.getMonth() + 1).toString().padStart(2, "0");
+      let day = now.getDate().toString().padStart(2, "0");
+      let hours = now.getHours().toString().padStart(2, "0");
+      let minutes = now.getMinutes().toString().padStart(2, "0");
+      let seconds = now.getSeconds().toString().padStart(2, "0");
+      let milliseconds = now.getMilliseconds().toString().padEnd(3, "0");
+  
+      return isOrderNumber ? `${year}${month}${day}${hours}${minutes}${seconds}${milliseconds}` : `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}000`;
+    }
+
+    const orderDetails = {
+      orderNumber: getCurrentDateTime(true),
+      orderDate: getCurrentDateTime(false)
+    }
+
     let listOfItems = [];
+
+    // Static price_id from stripe for 30 credits
+    if(listData.data[0].price.id === "price_1PvG8oGkWb1Ap7UJKDhSFnAr"){
+      const creditsPerQuantity = 30;
+      const quantity = listData.data[0].quantity;
+      const totalNewCredits = creditsPerQuantity * quantity;
+      const userFromDB = await prisma.artist.findFirst({
+        where:{
+          email: user.email
+        }
+      })
+      const updateUser = await prisma.artist.update({
+        where: {
+          email: user.email,
+        },
+        data: {
+          aiimagecredits: userFromDB.aiimagecredits + totalNewCredits,
+        },
+      })
+      
+      listOfItems = [{
+        name: "30 AI Image Credits",
+        quantity: quantity,
+        unitPrice: "1.00"
+      }]
+
+      sendOrderSuccessfulEmail(orderDetails, user, listOfItems)
+      return;
+    }
 
     const listPromise = listData.data.map(async (product) => {
       const design = await prisma.design.findFirst({
@@ -534,19 +609,6 @@ const webhook = async (req: Request, res: Response) => {
     const headers = new Headers();
     headers.append("Content-Type", "application/json");
     headers.append("Authorization", `Basic ${process.env.AUTH_SHIPSTATION!}`);
-    function getCurrentDateTime(isOrderNumber: boolean) {
-      let now = new Date();
-
-      let year = now.getFullYear();
-      let month = (now.getMonth() + 1).toString().padStart(2, "0");
-      let day = now.getDate().toString().padStart(2, "0");
-      let hours = now.getHours().toString().padStart(2, "0");
-      let minutes = now.getMinutes().toString().padStart(2, "0");
-      let seconds = now.getSeconds().toString().padStart(2, "0");
-      let milliseconds = now.getMilliseconds().toString().padEnd(3, "0");
-
-      return isOrderNumber ? `${year}${month}${day}${hours}${minutes}${seconds}${milliseconds}` : `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}000`;
-    }
 
     const raw = JSON.stringify({
       orderNumber: getCurrentDateTime(true),
@@ -583,10 +645,6 @@ const webhook = async (req: Request, res: Response) => {
       items: listOfItems,
       advancedOptions: { source: 'merchlife' }
     });
-    const orderDetails = {
-      orderNumber: getCurrentDateTime(true),
-      orderDate: getCurrentDateTime(false)
-    }
     const requestOptions = {
       method: "POST",
       headers: headers,
@@ -1126,17 +1184,46 @@ const createGroup = async (req: Request, res: Response) => {
 };
 
 const getGallery = async (req: Request, res: Response) => {
-  const artistId = req.user.artistId;
-  //@ts-ignore
-  const gallery = await prisma.group.findMany({
-    where: {
-      artistId,
-    },
-  });
-  res.status(200).json({
-    message: "List of gallery",
-    gallery,
-  });
+  // @ts-ignore
+  try {
+    const artistId = req.user.artistId;
+
+    // Fetch the artist's credit (or other relevant fields)
+    const artist = await prisma.artist.findUnique({
+      where: {
+        id: artistId,
+      },
+      select: {
+        aiimagecredits: true, // Assuming `credit` is the field you want, replace it with the correct field
+      },
+    });
+
+    if (!artist) {
+      res.status(404).json({ message: "Artist not found" });
+    }
+
+    // Fetch the gallery associated with the artist
+    const gallery = await prisma.group.findMany({
+      where: {
+        artistId,
+      },
+    });
+    let galleryObject = {
+      message: "List of gallery",
+      credits: artist.aiimagecredits, // Send the credit or relevant field as part of the response
+      gallery,
+    }
+    console.log("galleryObject: ", galleryObject)
+    // Respond with both gallery and credit info
+    res.status(200).json({
+      message: "List of gallery",
+      credits: artist.aiimagecredits, // Send the credit or relevant field as part of the response
+      gallery,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
 const getGroupRelation = async (req: Request, res: Response) => {
@@ -1489,6 +1576,7 @@ const getByIdWithDecorators = withErrorHandlingDecorator(getById);
 const getByIdUniqueWithDecorators = withErrorHandlingDecorator(getByIdUnique);
 
 const sessionWithDecorators = withErrorHandlingDecorator(session);
+const buyCreditsWithDecorators = withErrorHandlingDecorator(buyCredits);
 const webhookWithDecorators = withErrorHandlingDecorator(webhook);
 // const fulfillmentWebhookWithDecorators = withErrorHandlingDecorator(fulfillmentWebhook);
 const getOrdersWithDecorators = withErrorHandlingDecorator(getOrders);
@@ -1520,6 +1608,7 @@ export const productController = {
   getByUser: getByUserWithDecorators,
   getById: getByIdWithDecorators,
   session: sessionWithDecorators,
+  buyCredits: buyCreditsWithDecorators,
   webhook: webhookWithDecorators,
   // fulfillmentWebhook: fulfillmentWebhookWithDecorators,  
   getOrders: getOrdersWithDecorators,

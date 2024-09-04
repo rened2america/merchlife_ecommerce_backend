@@ -23,6 +23,7 @@ routes
   .get("/productsByGroup/:artist", productController.getProductByGroupWithArtist)
   .get("/allByUser", authValidate, productController.getByUser)
   .post("/payment", productController.session)
+  .post("/buyCredits", productController.buyCredits)
   .get("/infoorders/orders", authValidate, productController.getOrders)
   .post(
     "/upload/art",

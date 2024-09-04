@@ -24,6 +24,7 @@ model Artist {
   twitter   String @default("")
   website   String @default("")
   bio String @default("")
+  aiimagecredits Int @default(30)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   session Session?
