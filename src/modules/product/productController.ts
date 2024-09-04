@@ -437,9 +437,10 @@ const buyCredits = async (req: Request, res: Response) => {
   const Products = [
     {
       price: "price_1PvG8oGkWb1Ap7UJKDhSFnAr", // Static price_id from stripe for 30 credits
-      quantity: 1,
+      quantity: req.body.quantity,
     }
   ]
+  console.log(Products)
     
   const stripe = connectionStripe();
   const session = await stripe.checkout.sessions.create({
