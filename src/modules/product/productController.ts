@@ -541,7 +541,7 @@ const webhook = async (req: Request, res: Response) => {
       listOfItems = [{
         name: "30 AI Image Credits",
         quantity: quantity,
-        unitPrice: "1.00"
+        unitPrice: 1.00
       }]
 
       sendOrderSuccessfulEmail(orderDetails, user, listOfItems)
