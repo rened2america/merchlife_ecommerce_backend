@@ -447,8 +447,8 @@ const buyCredits = async (req: Request, res: Response) => {
     mode: "payment",
     payment_method_types: ["card"],
     line_items: Products,
-    success_url: process.env.URL_ECOMMERCE! + "/success/",
-    cancel_url: process.env.URL_ECOMMERCE! + "/cancel/",
+    success_url: process.env.URL_DASHBOARD! + "/dashboard2/gallery/",
+    cancel_url: process.env.URL_DASHBOARD! + "/dashboard2/gallery/",
     phone_number_collection: {
       enabled: true,
     },
