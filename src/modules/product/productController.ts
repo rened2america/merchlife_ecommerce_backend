@@ -1222,7 +1222,40 @@ const getGallery = async (req: Request, res: Response) => {
 };
 
 const generateImage = async (req: Request, res: Response) => {
-  // Image is generated in a route on frontend 
+  try {
+    const { prompt, imageName } =  req.body; // Use req.json() to parse the body
+    console.log("prompt: ", prompt);
+    
+    const formData = new FormData();
+    formData.append("prompt", prompt);
+    formData.append("output_format", "webp");
+    formData.append("aspect_ratio", "2:3");
+
+    const apiKey = process.env.STABILITY_AI_API_KEY;
+
+    const response = await fetch(
+      "https://api.stability.ai/v2beta/stable-image/generate/core",
+      {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          Accept: "image/*",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`${response.status}: ${await response.text()}`);
+    }
+
+    const imageBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(imageBuffer);
+
+    // Convert the buffer to a base64 string
+    const base64Image = buffer.toString('base64');
+
+      // Image is generated in a route on frontend 
   // Here we will just decrease the credit by one
   const artistId = req.user.artistId;
   console.log("artistId: ", artistId)
@@ -1242,9 +1275,12 @@ const generateImage = async (req: Request, res: Response) => {
     },
   })
 
-  res.status(200).json({
-    message: "success",
-  });
+    // Return the base64 image in the response
+    res.status(200).json({ image: base64Image });
+  } catch (error) {
+    console.error('Error generating image:', error);
+    res.status(500).json({ error: 'Failed to generate image' });
+  }
 };
 
 const getGroupRelation = async (req: Request, res: Response) => {
