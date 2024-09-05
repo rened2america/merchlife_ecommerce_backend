@@ -1610,7 +1610,7 @@ const findProductsByFilters = async (req: Request, res: Response) => {
 
   const products = await prisma.product.findMany({
     where,
-    select: { id: true, price: true, design: { select: { url: true, size: true, variant: true }, where: designWhere }, types: { select: { value: true }, where: typesWhere }, artist: { select: { name: true } } },
+    select: { id: true, title: true, price: true, design: { select: { url: true, size: true, variant: true }, where: designWhere }, types: { select: { value: true }, where: typesWhere }, artist: { select: { name: true } } },
     // include: {
     //   design: true,
     //   types: true,
