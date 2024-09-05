@@ -441,7 +441,7 @@ const buyCredits = async (req: Request, res: Response) => {
     }
   ]
   console.log(Products)
-    
+
   const stripe = connectionStripe();
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
@@ -729,17 +729,17 @@ const sendOrderSuccessfulEmail = async (orderDetails, user, listOfItems) => {
           </thead>
           <tbody>`;
 
-          listOfItems.forEach(item => {
-            orderDetailsHtml += `
+  listOfItems.forEach(item => {
+    orderDetailsHtml += `
                       <tr>
                         <td>${item.name}</td>
                         <td>${item.quantity}</td>
                         <td>$${item.unitPrice.toFixed(2)}</td>
                         <td>$${(item.quantity * item.unitPrice).toFixed(2)}</td>
                       </tr>`;
-          });
+  });
 
-          orderDetailsHtml += `
+  orderDetailsHtml += `
               </tbody>
             </table>
 
@@ -1209,12 +1209,6 @@ const getGallery = async (req: Request, res: Response) => {
         artistId,
       },
     });
-    let galleryObject = {
-      message: "List of gallery",
-      credits: artist.aiimagecredits, // Send the credit or relevant field as part of the response
-      gallery,
-    }
-    console.log("galleryObject: ", galleryObject)
     // Respond with both gallery and credit info
     res.status(200).json({
       message: "List of gallery",
@@ -1225,6 +1219,32 @@ const getGallery = async (req: Request, res: Response) => {
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
+};
+
+const generateImage = async (req: Request, res: Response) => {
+  // Image is generated in a route on frontend 
+  // Here we will just decrease the credit by one
+  const artistId = req.user.artistId;
+  console.log("artistId: ", artistId)
+  // Get artist object from DB``
+  const artist = await prisma.artist.findFirst({
+    where: {
+      id: artistId
+    }
+  })
+  // Deduct the credit by one on every image generation
+  const deductCreditByOne = await prisma.artist.update({
+    where: {
+      id: artistId,
+    },
+    data: {
+      aiimagecredits: artist.aiimagecredits - 1,
+    },
+  })
+
+  res.status(200).json({
+    message: "success",
+  });
 };
 
 const getGroupRelation = async (req: Request, res: Response) => {
@@ -1585,6 +1605,7 @@ const updateWithDecorators = withErrorHandlingDecorator(update);
 const deleteWithDecorators = withErrorHandlingDecorator(deleteProduct);
 const createGroupWithDecorators = withErrorHandlingDecorator(createGroup);
 const getGalleryWithDecorators = withErrorHandlingDecorator(getGallery);
+const generateImageWithDecorators = withErrorHandlingDecorator(generateImage);
 const getGroupRelationWithDecorators =
   withErrorHandlingDecorator(getGroupRelation);
 const getGroupRelationByArtistWithDecorators = withErrorHandlingDecorator(
@@ -1617,6 +1638,7 @@ export const productController = {
   delete: deleteWithDecorators,
   createGroup: createGroupWithDecorators,
   getGallery: getGalleryWithDecorators,
+  generateImage: generateImageWithDecorators,
   getGroupRelation: getGroupRelationWithDecorators,
   getGroupRelationByArtist: getGroupRelationByArtistWithDecorators,
   getByIdUnique: getByIdUniqueWithDecorators,

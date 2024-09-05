@@ -32,6 +32,7 @@ routes
     productController.createGroup
   )
   .get("/gallery", authValidate, productController.getGallery)
+  .patch("/generateImage", authValidate, productController.generateImage)
   .post(
     "/webhook",
     express.raw({ type: "application/json" }),
