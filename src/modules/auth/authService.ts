@@ -9,6 +9,12 @@ class AuthService {
     return newUser;
   };
 
+  userExists = async (email: any) => {
+    const userExists = await authDAO.userExists(email)
+    console.log("userExists: ", userExists)
+    return userExists;
+  }
+
   encryptPassword = async (password: string) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);

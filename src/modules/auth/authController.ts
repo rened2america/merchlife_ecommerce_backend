@@ -20,7 +20,7 @@ const login = async (req: Request, res: Response) => {
 
   const artistExist = await artistService.getArtistByEmail(payload.email);
   if (!artistExist) {
-    res.status(404).json({ meesage: "usuario no encontrado" });
+    res.status(401).json({ message: "User not found" });
     return;
   }
 
@@ -29,7 +29,7 @@ const login = async (req: Request, res: Response) => {
     artistExist.password
   );
   if (!passwordIsValid) {
-    res.status(404).json({ meesage: "password incorrecta" });
+    res.status(401).json({ message: "Password is incorrect" });
     return;
   }
 
@@ -136,6 +136,13 @@ const createAccount = async (req: Request, res: Response) => {
     //   email: "rame.rmeza@gmail.com",
     //   password: "emar16198",
   // };
+  const userExists = await authService.userExists(user.email)
+  if (userExists) {
+    res.status(400).json({
+      message: "User already exists"
+    })
+    return;
+  }
 
   const password = user.password;
   const passwordToSave = await authService.encryptPassword(password);
@@ -144,16 +151,16 @@ const createAccount = async (req: Request, res: Response) => {
     password: passwordToSave,
   });
 
-  const sendEmail = await authService.sendEmailConfirmation(newUser.email);
-  const sendEmailVerifyArtist = await authService.sendEmailVerifyArtist(
-    newUser.email,
-    newUser.name
-  );
+  // const sendEmail = await authService.sendEmailConfirmation(newUser.email);
+  // const sendEmailVerifyArtist = await authService.sendEmailVerifyArtist(
+  //   newUser.email,
+  //   newUser.name
+  // );
   res.status(201).json({
     message: "user created",
     newUser,
-    sendEmail,
-    sendEmailVerifyArtist,
+    // sendEmail,
+    // sendEmailVerifyArtist,
   });
 };
 
