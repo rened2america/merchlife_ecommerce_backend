@@ -20,7 +20,7 @@ const login = async (req: Request, res: Response) => {
 
   const artistExist = await artistService.getArtistByEmail(payload.email);
   if (!artistExist) {
-    res.status(401).json({ message: "User not found" });
+    res.status(400).json({ message: "User not found" });
     return;
   }
 
@@ -29,7 +29,7 @@ const login = async (req: Request, res: Response) => {
     artistExist.password
   );
   if (!passwordIsValid) {
-    res.status(401).json({ message: "Password is incorrect" });
+    res.status(400).json({ message: "Password is incorrect" });
     return;
   }
 
