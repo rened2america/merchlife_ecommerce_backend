@@ -761,7 +761,7 @@ const sendOrderSuccessfulEmail = async (orderDetails, user, listOfItems) => {
 
   const msg = {
     to: user.email,
-    from: "raj@d2america.com",
+    from: process.env.SUPPORT_EMAIL,
     subject: "Thank you for the order. Here are your order details",
     text: "MERCHLIFE",
     html: orderDetailsHtml
