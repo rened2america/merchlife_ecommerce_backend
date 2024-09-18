@@ -436,7 +436,7 @@ const session = async (req: Request, res: Response) => {
 const buyCredits = async (req: Request, res: Response) => {
   const Products = [
     {
-      price: "price_1PvG8oGkWb1Ap7UJKDhSFnAr", // Static price_id from stripe for 20 credits
+      price: process.env.PRICE_ID_20_CREDITS, // Static price_id from stripe for 20 credits
       quantity: req.body.quantity,
     }
   ]
@@ -521,7 +521,7 @@ const webhook = async (req: Request, res: Response) => {
     let listOfItems = [];
 
     // Static price_id from stripe for 20 credits
-    if(listData.data[0].price.id === "price_1PvG8oGkWb1Ap7UJKDhSFnAr"){
+    if (listData.data[0].price.id === process.env.PRICE_ID_20_CREDITS) {
       const creditsPerQuantity = 20;
       const quantity = listData.data[0].quantity;
       const totalNewCredits = creditsPerQuantity * quantity;
