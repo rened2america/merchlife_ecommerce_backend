@@ -15,6 +15,8 @@ app.use(
       "http://localhost:3000",
       "https://merchlife-alternative-frontend.vercel.app",
       "https://merchlife-dashboard-frontend.vercel.app",
+      "https://www.merchlife.co",
+      "https://dashboard.merchlife.co",      
     ],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     preflightContinue: false,
