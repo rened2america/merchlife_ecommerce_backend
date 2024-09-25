@@ -132,6 +132,7 @@ const tokenConfirm = async (req: Request, res: Response) => {
     });
     return;
   }
+  //Confirm both verifyEmail and VerifyArtist 
   await prisma.artist.update({
     where: {
       //@ts-ignore
@@ -139,6 +140,7 @@ const tokenConfirm = async (req: Request, res: Response) => {
     },
     data: {
       emailConfirmation: true,
+      verifyArtist: true,
     },
   });
   res.status(200).json({

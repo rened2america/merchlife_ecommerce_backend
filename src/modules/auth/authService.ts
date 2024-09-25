@@ -48,9 +48,9 @@ class AuthService {
 
     const msg = {
       to: email, // Change to your recipient
-      from: "renemeza.escamilla@gmail.com", // Change to your verified sender
+      from: process.env.SUPPORT_EMAIL!, // Change to your verified sender
       subject: "Confirm your email",
-      text: "politicozen",
+      text: "Merchlife",
       html: `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
@@ -386,7 +386,7 @@ ul.social li{
           		<tr>
           		    
           			<td class="logo" style="text-align: center;">
-			            <h1><a style="color: #222;" href="#">Politicozen</a></h1>
+			            <h1><a style="color: #222;" href="#">Merchlife</a></h1>
 			          </td>
           		</tr>
           	</table>
@@ -394,7 +394,7 @@ ul.social li{
 	      </tr><!-- end tr -->
 	      <tr>
           <td valign="middle" class="hero bg_white" style="padding: 3em 0 2em 0;">
-            <img src="http://cdn.mcauto-images-production.sendgrid.net/d2a6c13ecf414677/769bf20a-ddf0-46f3-bb4b-7a81c7d478dc/3584x4096.png" alt="" style="width: 300px; max-width: 600px; height: auto; margin: auto; display: block;">
+           <!-- <img src="http://cdn.mcauto-images-production.sendgrid.net/d2a6c13ecf414677/769bf20a-ddf0-46f3-bb4b-7a81c7d478dc/3584x4096.png" alt="" style="width: 300px; max-width: 600px; height: auto; margin: auto; display: block;">-->
           </td>
 	      </tr><!-- end tr -->
 				<tr>
@@ -475,7 +475,7 @@ ul.social li{
 
     const msg = {
       to: email, // Change to your recipient
-      from: "renemeza.escamilla@gmail.com", // Change to your verified sender
+      from: process.env.SUPPORT_EMAIL!, // Change to your verified sender
       subject: "Confirm artist",
       text: "politicozen",
       html: `
@@ -814,7 +814,7 @@ ul.social li{
           		<tr>
           		    
           			<td class="logo" style="text-align: center;">
-			            <h1><a style="color: #222;" href="#">Politicozen</a></h1>
+			            <h1><a style="color: #222;" href="#">Merchlife</a></h1>
 			          </td>
           		</tr>
           	</table>
@@ -896,7 +896,7 @@ ul.social li{
 
     const msg = {
       to: email, // Change to your recipient
-      from: "renemeza.escamilla@gmail.com", // Change to your verified sender
+      from: process.env.SUPPORT_EMAIL!, // Change to your verified sender
       subject: "Sending with SendGrid is Fun",
       text: "and easy to do anywhere, even with Node.js",
       html: "<strong>and easy to do anywhere, even with Node.js</strong>",
