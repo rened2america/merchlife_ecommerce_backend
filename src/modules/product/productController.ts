@@ -960,6 +960,10 @@ const createGroup = async (req: Request, res: Response) => {
   const imageArt = req.body.art;
   console.log("imageArt: ", imageArt)
   const name = req.body.name;
+  if(!name || !imageArt){
+    res.status(400).json({message: "Image or title missing"});
+    return;
+  }
   const posterName = `${name} Poster`
   const canvasName = `${name} Canvas`
   // const imageCrop = req.body.imageCrop;

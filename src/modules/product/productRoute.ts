@@ -4,9 +4,8 @@ import { authValidate } from "../../middlewares/authMiddlewares";
 import express from "express";
 const multer = require("multer");
 const upload = multer({
-  storage: multer.memoryStorage(),
   limits: {
-    fileSize: 30 * 1024 * 1024, // limit file size to 10MB
+    fieldSize: 25 * 1024 * 1024, // Sets the field size limit to 25MB
   },
 });
 const routes = Router();
