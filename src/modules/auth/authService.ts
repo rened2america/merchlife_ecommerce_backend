@@ -477,7 +477,7 @@ ul.social li{
       to: email, // Change to your recipient
       from: process.env.SUPPORT_EMAIL!, // Change to your verified sender
       subject: "Confirm artist",
-      text: "politicozen",
+      text: "merchlife",
       html: `
         <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -912,8 +912,8 @@ ul.social li{
     const msg = {
       to: "luis@smartprintsink.com", // Change to your recipient
       from: "renemeza.escamilla@gmail.com", // Change to your verified sender
-      subject: "New Upgrade have come to Politicozen.com",
-      text: "politicozen",
+      subject: "New Upgrade have come to merchlife.co",
+      text: "merchlife",
       html: `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
@@ -1249,7 +1249,7 @@ ul.social li{
           		<tr>
           		    
           			<td class="logo" style="text-align: center;">
-			            <h1><a style="color: #222;" href="#">Politicozen</a></h1>
+			            <h1><a style="color: #222;" href="#">Merchlife</a></h1>
 			          </td>
           		</tr>
           	</table>
@@ -1265,7 +1265,7 @@ ul.social li{
             		<td>
             			<div class="text" style="padding: 0 2.5em;">
             				<p>Hello <strong>Rene Meza</strong>,</p>
-    <p>We are thrilled to announce some major enhancements to <a href="https://www.politicozen.com">Politicozen.com</a> designed to make your experience as a contributing artist even more rewarding.</p>
+    <p>We are thrilled to announce some major enhancements to <a href="https://www.merchlife.co">merchlife.co</a> designed to make your experience as a contributing artist even more rewarding.</p>
 
     <h2>Here’s what’s new:</h2>
     <ul>
@@ -1275,11 +1275,11 @@ ul.social li{
         <li><strong>Earn 40% on Sales:</strong> We believe in rewarding your creativity, so you’ll earn about 40% from each sale you make.</li>
     </ul>
 
-    <p>Dive into these new features and make the most of your art on Politicozen.com. If you need any assistance or have questions, we’re here to help.</p>
+    <p>Dive into these new features and make the most of your art on merchlife.com. If you need any assistance or have questions, we’re here to help.</p>
     
     <p>Happy selling!</p>
     <p>Best,</p>
-    <p>The Politicozen Team</p>
+    <p>The Merchlife Team</p>
             			</div>
             		</td>
             	</tr>
